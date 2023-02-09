@@ -21,7 +21,14 @@ frame_len = round((200/(2*fr))*fs);
 window = ones([1,frame_len]);
 
 % Calculate Spectogram
-s = spectrogram(x, window,0,N);
+% spectral = spectrogram(x, window,0,N);
+
+number_of_window_jumps = ceil(length(x)/frame_len);
+spectral = zeros([N, number_of_window_jumps]);
+for index = 1:number_of_window_jumps-1
+    spectral(:,index+1) = fft(x(index*number_of_window_jumps:(index+1)*number_of_window_jumps),N);
+
+end
 
 exponent = exp(1i*wr*n);
 
@@ -42,6 +49,7 @@ exponent_2 = exp(-1i*wr*n);
 output = exponent_2.*x_dash;
 
 % averaging the outputs per frame_len
+
 avg=zeros([1,29]);
 c=1;
 for i=1:267:length(output)-267
@@ -53,14 +61,14 @@ end
 
 % for i = 0:1
     subplot(2,1,1)
-    plot(abs(s(round(N*fr/fs),:)))
+    plot(abs(spectral(round(N*fr/fs),:)))
 %     hold on
 %     plot(abs(s(round(N*fr/fs)-1,:)))
 %     plot(abs(s(round(N*fr/fs)+1,:)))
     title("spectrogram at fr")
 %     hold on
     subplot(2,1,2)
-    a = size(s);
+    a = size(spectral);
 
 %     plot(abs(output(1:frame_len:length(output))))
     plot(avg)
